@@ -2,53 +2,50 @@ require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 require 'fspath/xattr'
 
 describe FSPath::Xattr do
-  let(:path){ 'test.txt' }
-  let(:link){ 'link.txt' }
+  file = 'file'
+  link = 'link'
 
   before do
-    File.open(path, 'w'){ |io| io << 'some content' }
-    File.symlink(path, link)
+    File.open(file, 'w'){ |io| io << 'some content' }
+    File.symlink(file, link)
   end
   after do
-    File.delete(path)
+    File.delete(file)
     File.delete(link)
   end
 
   describe "xattr" do
-    let(:xattr){ FSPath(link).xattr }
+    [
+      [file, :xattr],
+      [link, :xattr],
+      [file, :lxattr],
+      [link, :lxattr],
+    ].each do |path, method|
+      describe "#{path}.#{method}" do
+        it "should return instance of Xattr" do
+          FSPath(path).send(method).should be_kind_of(Xattr)
+        end
 
-    it "should return instance of Xattr" do
-      xattr.should be_kind_of(Xattr)
-    end
+        it "should point to same path" do
+          FSPath(path).send(method).instance_variable_get(:@path).should == path
+        end
 
-    it "should point to same path" do
-      xattr.instance_variable_get(:@path).should == link
-    end
+        it "should set xattr on path" do
+          FSPath(file).lxattr['user.hello'].should be_nil
+          FSPath(link).lxattr['user.hello'].should be_nil
 
-    it "should set xattr on linked path" do
-      FSPath(path).xattr['user.hello'].should be_nil
-      xattr['user.hello'] = 'foo'
-      xattr['user.hello'].should == 'foo'
-      FSPath(path).xattr['user.hello'].should == 'foo'
-    end
-  end
+          FSPath(path).send(method)['user.hello'] = 'world'
+          FSPath(path).send(method)['user.hello'].should == 'world'
 
-  describe "lxattr" do
-    let(:xattr){ FSPath(link).lxattr }
-
-    it "should return instance of Xattr" do
-      xattr.should be_kind_of(Xattr)
-    end
-
-    it "should point to same path" do
-      xattr.instance_variable_get(:@path).should == link
-    end
-
-    it "should set xattr on link itself" do
-      FSPath(path).xattr['user.hello'].should be_nil
-      xattr['user.hello'] = 'foo'
-      xattr['user.hello'].should == 'foo'
-      FSPath(path).xattr['user.hello'].should be_nil
+          if path == link && method == :lxattr
+            FSPath(file).lxattr['user.hello'].should be_nil
+            FSPath(link).lxattr['user.hello'].should == 'world'
+          else
+            FSPath(file).lxattr['user.hello'].should == 'world'
+            FSPath(link).lxattr['user.hello'].should be_nil
+          end
+        end
+      end
     end
   end
 end
