@@ -2,6 +2,8 @@
 
 Better than Pathname
 
+[![Build Status](https://travis-ci.org/toy/fspath-xattr.png?branch=master)](https://travis-ci.org/toy/fspath-xattr)
+
 ### Extended attributes (using xattr gem)
 
 Get extended attribute:
