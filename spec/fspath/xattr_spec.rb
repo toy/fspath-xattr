@@ -23,26 +23,26 @@ describe FSPath::Xattr do
     ].each do |path, method|
       describe "#{path}.#{method}" do
         it "should return instance of Xattr" do
-          FSPath(path).send(method).should be_kind_of(Xattr)
+          expect(FSPath(path).send(method)).to be_kind_of(Xattr)
         end
 
         it "should point to same path" do
-          FSPath(path).send(method).instance_variable_get(:@path).should == path
+          expect(FSPath(path).send(method).instance_variable_get(:@path)).to eq(path)
         end
 
         it "should set xattr on path" do
-          FSPath(file).lxattr['user.hello'].should be_nil
-          FSPath(link).lxattr['user.hello'].should be_nil
+          expect(FSPath(file).lxattr['user.hello']).to be_nil
+          expect(FSPath(link).lxattr['user.hello']).to be_nil
 
           FSPath(path).send(method)['user.hello'] = 'world'
-          FSPath(path).send(method)['user.hello'].should == 'world'
+          expect(FSPath(path).send(method)['user.hello']).to eq('world')
 
           if path == link && method == :lxattr
-            FSPath(file).lxattr['user.hello'].should be_nil
-            FSPath(link).lxattr['user.hello'].should == 'world'
+            expect(FSPath(file).lxattr['user.hello']).to be_nil
+            expect(FSPath(link).lxattr['user.hello']).to eq('world')
           else
-            FSPath(file).lxattr['user.hello'].should == 'world'
-            FSPath(link).lxattr['user.hello'].should be_nil
+            expect(FSPath(file).lxattr['user.hello']).to eq('world')
+            expect(FSPath(link).lxattr['user.hello']).to be_nil
           end
         end
       end
