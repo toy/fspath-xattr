@@ -9,9 +9,23 @@ describe FSPath::Xattr do
     File.open(file, 'w'){ |io| io << 'some content' }
     File.symlink(file, link)
   end
+
   after do
-    File.delete(file)
-    File.delete(link)
+    File.unlink(file)
+    File.unlink(link)
+  end
+
+  def can_set_on_symlink?
+    xxx = 'test'
+    File.symlink('.', xxx)
+    begin
+      ::Xattr.new(xxx, :no_follow => true)['user.foo'] = 'bar'
+      true
+    rescue Errno::EPERM
+      false
+    ensure
+      File.unlink(xxx)
+    end
   end
 
   describe "xattr" do
@@ -31,13 +45,17 @@ describe FSPath::Xattr do
         end
 
         it "should set xattr on path" do
+          on_symlink = path == link && method == :lxattr
+
+          skip 'unsupported' if on_symlink && !can_set_on_symlink?
+
           expect(FSPath(file).lxattr['user.hello']).to be_nil
           expect(FSPath(link).lxattr['user.hello']).to be_nil
 
           FSPath(path).send(method)['user.hello'] = 'world'
           expect(FSPath(path).send(method)['user.hello']).to eq('world')
 
-          if path == link && method == :lxattr
+          if on_symlink
             expect(FSPath(file).lxattr['user.hello']).to be_nil
             expect(FSPath(link).lxattr['user.hello']).to eq('world')
           else

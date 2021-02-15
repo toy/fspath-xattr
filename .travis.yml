@@ -1,7 +1,8 @@
-os: osx
+os:
+- linux
+- osx
 language: ruby
 rvm:
-  - default
   - '2.4.10'
   - '2.5.8'
   - '2.6.6'
@@ -13,4 +14,5 @@ matrix:
     - env: CHECK_RUBIES=1
       script: bundle exec travis_check_rubies
   allow_failures:
-    - rvm: '3.0.0'
+    - os: osx
+      rvm: '3.0.0'
