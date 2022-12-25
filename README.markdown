@@ -2,7 +2,7 @@
 
 Better than Pathname
 
-[![Build Status](https://img.shields.io/github/workflow/status/toy/fspath-xattr/check/master?logo=github)](https://github.com/toy/fspath-xattr/actions/workflows/check.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/toy/fspath-xattr/check.yml?logo=github)](https://github.com/toy/fspath-xattr/actions/workflows/check.yml)
 
 ### Extended attributes (using xattr gem)
 
